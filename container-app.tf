@@ -42,4 +42,24 @@ resource "azurerm_container_app" "hello-world-aca" {
       }
   }
  }
+  lifecycle {
+    ignore_changes = [
+      template[0].custom_scale_rule,
+      template[0].azure_queue_scale_rule
+    ]
+  }
+}
+
+# Đây là "Robot" tự động tick Managed Identity
+resource "null_resource" "enable_mi_for_scale_rule" {
+  depends_on = [azurerm_container_app.hello-world-aca]
+
+  triggers = {
+    aca_id = azurerm_container_app.hello-world-aca.id
+  }
+
+  provisioner "local-exec" {
+    # Thay chữ 'custom' bằng 'azureQueue' (chú ý chữ Q viết hoa theo đúng báo lỗi của Azure)
+    command = "az resource update --ids ${azurerm_container_app.hello-world-aca.id} --set properties.template.scale.rules[0].azureQueue.identity=System"
+  }
 }
