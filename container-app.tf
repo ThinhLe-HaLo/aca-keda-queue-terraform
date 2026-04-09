@@ -13,10 +13,15 @@ resource "azurerm_container_app" "hello-world-aca" {
   identity {
     type = "SystemAssigned"
   }
+secret {
+    name  = "mysql-db-password"
+    # Tự động lấy password mà bạn đã khai báo lúc tạo MySQL Server
+    value = azurerm_mysql_flexible_server.mysql.administrator_password
+  }
 
   ingress {
     external_enabled = true
-    target_port      = 8080
+    target_port      = 8082
     transport        = "auto"
     traffic_weight {
       latest_revision = true
@@ -27,10 +32,32 @@ resource "azurerm_container_app" "hello-world-aca" {
   template {
     container {
       name   = "hello-world-container"
-      image  = "docker.io/lethinhlk/helloweb:1.0"
+      image  = "docker.io/lethinhlk/loginsinhvien_mgmt:1.0"
       cpu    = 0.25
       memory = "0.5Gi"
+      env {
+        name  = "DB_HOST"
+        # Tự động lấy domain name (FQDN) của MySQL Server sau khi tạo xong
+        value = azurerm_mysql_flexible_server.mysql.fqdn
+      }
+
+      env {
+        name  = "DB_USER"
+        # Tự động lấy Admin Username
+        value = azurerm_mysql_flexible_server.mysql.administrator_login
+      }
+
+      env {
+        name  = "DB_NAME"
+        # Tên Database (có thể gõ text hoặc lấy từ azurerm_mysql_flexible_database)
+        value = azurerm_mysql_flexible_database.mysql_db.name
+      }
+      env {
+        name        = "DB_PASS"
+        secret_name = "mysql-db-password" # Trỏ về cái két sắt đã định nghĩa ở trên
+      }
     }
+/*
     # Cấu hình KEDA Rule sử dụng Identity thay vì Connection String
     custom_scale_rule {
       name             = "storage-queue-autoscaling"
@@ -48,8 +75,9 @@ resource "azurerm_container_app" "hello-world-aca" {
       template[0].azure_queue_scale_rule
     ]
   }
+  */
 }
-
+/*
 # Đây là "Robot" tự động tick Managed Identity
 resource "null_resource" "enable_mi_for_scale_rule" {
   depends_on = [azurerm_container_app.hello-world-aca]
@@ -62,4 +90,5 @@ resource "null_resource" "enable_mi_for_scale_rule" {
     # Thay chữ 'custom' bằng 'azureQueue' (chú ý chữ Q viết hoa theo đúng báo lỗi của Azure)
     command = "az resource update --ids ${azurerm_container_app.hello-world-aca.id} --set properties.template.scale.rules[0].azureQueue.identity=System"
   }
+*/
 }

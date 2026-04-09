@@ -32,3 +32,26 @@ variable "queue_storage_name" {
     type        = string
     default     = "aca-queue"
 }
+
+# sql database setup
+variable "sql_server_name" {
+  description = "The name of the SQL server."
+  type        = string
+  default     = "azuresqlproserver"
+}
+variable "sql_userlogin" {
+  description = "The administrator login for the SQL server."
+  type        = string
+  default     = "azureadmin"
+}
+variable "sql_password" {
+  description = "The administrator password for the SQL server."
+  type        = string
+  default     = "softone@2026"
+  sensitive   = true
+}
+variable "database_name" {
+  description = "The name of the SQL database."
+  type        = string
+  default     = "sinhvien_db"
+}
