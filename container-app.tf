@@ -16,7 +16,9 @@ resource "azurerm_container_app" "hello-world-aca" {
 secret {
     name  = "mysql-db-password"
     # Tự động lấy password mà bạn đã khai báo lúc tạo MySQL Server
-    value = azurerm_mysql_flexible_server.mysql.administrator_password
+    //value = azurerm_mysql_flexible_server.mysql.administrator_password
+    key_vault_secret_id = azurerm_key_vault_secret.mysql_password_secret.versionless_id
+    identity            = "System"
   }
 
   ingress {

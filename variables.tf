@@ -45,10 +45,9 @@ variable "sql_userlogin" {
   default     = "azureadmin"
 }
 variable "sql_password" {
-  description = "The administrator password for the SQL server."
   type        = string
-  default     = "softone@2026"
-  sensitive   = true
+  description = "Nhập mật khẩu Database của bạn tại đây"
+  sensitive   = true # Quan trọng: Ngăn mật khẩu hiện ra màn hình console (hiện dấu *)
 }
 variable "database_name" {
   description = "The name of the SQL database."
